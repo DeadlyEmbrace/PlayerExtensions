@@ -427,7 +427,19 @@ namespace Mpdn.PlayerExtensions
                 case "ActiveSubTrack":
                     PlayerControl.VideoPanel.BeginInvoke((MethodInvoker) (() => SetSubtitle(command[1])));
                     break;
+                case "DirectoryDetails":
+                    DoFileRetrieval(command[1], command[2]);
+                    break;
+
             }
+        }
+
+        private void DoFileRetrieval(string clientGuid, string directory)
+        {
+            if (String.IsNullOrEmpty(directory))
+                directory = Settings.DefaultDirectory;
+
+            WriteToSpesificClient(FileBrowser.LoadFiles(directory), clientGuid);
         }
 
         private void RemoveWriter(string guid)
@@ -559,11 +571,13 @@ namespace Mpdn.PlayerExtensions
     {
         #region Variables
         public int ConnectionPort { get; set; }
+        public string DefaultDirectory { get; set; }
         #endregion
 
         public RemoteControlSettings()
         {
             ConnectionPort = 6545;
+            DefaultDirectory = Environment.CurrentDirectory;
         }
     }
 }

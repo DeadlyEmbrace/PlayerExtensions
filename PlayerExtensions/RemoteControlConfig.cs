@@ -16,6 +16,7 @@ namespace Mpdn.PlayerExtensions
         protected override void LoadSettings()
         {
             txbPort.Text = Settings.ConnectionPort.ToString();
+            txbDefaultDir.Text = Settings.DefaultDirectory;
         }
 
         protected override void SaveSettings()
@@ -24,6 +25,9 @@ namespace Mpdn.PlayerExtensions
             var portString = txbPort.Text;
             int.TryParse(portString, out portNum);
             Settings.ConnectionPort = portNum;
+            if (!String.IsNullOrEmpty(txbDefaultDir.Text))
+                Settings.DefaultDirectory = txbDefaultDir.Text;
+
         }
         #endregion
 
@@ -65,6 +69,15 @@ namespace Mpdn.PlayerExtensions
             ValidatePortNumber();
         }
         #endregion
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog fBrowserDialog = new FolderBrowserDialog();
+            fBrowserDialog.Description = "Select Default video directory";
+            if (fBrowserDialog.ShowDialog() == DialogResult.OK)
+                txbDefaultDir.Text = fBrowserDialog.SelectedPath;
+        }
+
     }
 
     public class RemoteControlConfigBase : ScriptConfigDialog<RemoteControlSettings>
