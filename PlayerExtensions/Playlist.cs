@@ -56,6 +56,16 @@ namespace Mpdn.PlayerExtensions.GitHub
             }
         }
 
+        public void AddFiles(string[] files)
+        {
+            m_Form.AddFiles(files);
+        }
+
+        public void GetPlaylist()
+        {
+            
+        }
+
         private void OpenPlaylist()
         {
             m_Form.Show(PlayerControl.Form);

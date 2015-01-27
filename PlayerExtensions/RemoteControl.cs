@@ -5,10 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+using Mpdn.PlayerExtensions.GitHub;
 using Timer = System.Timers.Timer;
 
 namespace Mpdn.PlayerExtensions
@@ -22,6 +24,8 @@ namespace Mpdn.PlayerExtensions
         private readonly RemoteControlAuthHandler _authHandler = new RemoteControlAuthHandler();
         private RemoteClients _clientManager;
         private Timer _locationTimer;
+        private Guid PlaylistGuid = Guid.Parse("A1997E34-D67B-43BB-8FE6-55A71AE7184B");
+        private Playlist _playlistInstance;
         #endregion
 
         #region Properties
@@ -78,6 +82,11 @@ namespace Mpdn.PlayerExtensions
             _clientManager = new RemoteClients(this);
             _locationTimer = new Timer(100);
             _locationTimer.Elapsed += _locationTimer_Elapsed;
+            var playlist = PlayerControl.PlayerExtensions.FirstOrDefault(t => t.Descriptor.Guid == PlaylistGuid);
+            if (playlist != null)
+            {
+                _playlistInstance = playlist as Playlist;
+            }
             Task.Factory.StartNew(Server);
         }
 
@@ -427,6 +436,29 @@ namespace Mpdn.PlayerExtensions
                 case "ActiveSubTrack":
                     PlayerControl.VideoPanel.BeginInvoke((MethodInvoker) (() => SetSubtitle(command[1])));
                     break;
+                case "AddFilesToPlaylist":
+                    AddFilesToPlaylist(command[1]);
+                    break;
+            }
+        }
+
+        private void AddFilesToPlaylist(string files)
+        {
+            List<string> filesToAdd = new List<string>();
+            var filePaths = Regex.Split(files, ">>");
+            if (filePaths.Any())
+            {
+                foreach (var file in filePaths)
+                {
+                    if (File.Exists(file))
+                    {
+                        filesToAdd.Add(file);
+                    }
+                }
+            }
+            if (filesToAdd.Any())
+            {
+                PlayerControl.VideoPanel.BeginInvoke((MethodInvoker) (() => _playlistInstance.AddFiles(filesToAdd.ToArray())));
             }
         }
 
@@ -484,8 +516,11 @@ namespace Mpdn.PlayerExtensions
             WriteToSpesificClient("Fullscreen|" + PlayerControl.InFullScreenMode, guid.ToString());
             WriteToSpesificClient("Mute|" + PlayerControl.Mute, guid.ToString());
             WriteToSpesificClient("Volume|" + PlayerControl.Volume, guid.ToString());
-            WriteToSpesificClient("FullLength|" + PlayerControl.MediaDuration, guid.ToString());
-            WriteToSpesificClient("Postion|" + PlayerControl.MediaPosition, guid.ToString());
+            if (PlayerControl.PlayerState == PlayerState.Playing || PlayerControl.PlayerState == PlayerState.Paused)
+            {
+                WriteToSpesificClient("FullLength|" + PlayerControl.MediaDuration, guid.ToString());
+                WriteToSpesificClient("Postion|" + PlayerControl.MediaPosition, guid.ToString());
+            }
             WriteToSpesificClient(GetAllSubtitleTracks(), guid.ToString());
             WriteToSpesificClient(GetAllAudioTracks(), guid.ToString());
         }
