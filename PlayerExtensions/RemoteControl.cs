@@ -349,7 +349,7 @@ namespace Mpdn.PlayerExtensions
 
         private void ClientAuth(string msgValue, Guid clientGuid)
         {
-            WriteToSpesificClient("AuthCode|" + msgValue, clientGuid.ToString());
+            WriteToSpesificClient("AuthCode|" + clientGuid, clientGuid.ToString());
             if(MessageBox.Show("Allow Remote Connection for " + msgValue, "Remote Authentication", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 DisplayTextMessage("Remote Connected");
@@ -439,7 +439,23 @@ namespace Mpdn.PlayerExtensions
                 case "AddFilesToPlaylist":
                     AddFilesToPlaylist(command[1]);
                     break;
+                case "ClearPlaylist":
+                    PlayerControl.VideoPanel.BeginInvoke((MethodInvoker) (ClearPlaylist));
+                    break;
+                case "FocusPlayer":
+                    PlayerControl.VideoPanel.BeginInvoke((MethodInvoker)(FocusMpdn));
+                    break;
             }
+        }
+
+        private void FocusMpdn()
+        {
+            PlayerControl.Form.Focus();
+        }
+
+        private void ClearPlaylist()
+        {
+            _playlistInstance.ClearPlaylist();
         }
 
         private void AddFilesToPlaylist(string files)

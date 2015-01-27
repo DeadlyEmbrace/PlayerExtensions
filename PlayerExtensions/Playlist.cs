@@ -56,6 +56,7 @@ namespace Mpdn.PlayerExtensions.GitHub
             }
         }
 
+        #region RemoteControl Methods
         public void AddFiles(string[] files)
         {
             m_Form.AddFiles(files);
@@ -65,6 +66,12 @@ namespace Mpdn.PlayerExtensions.GitHub
         {
             
         }
+
+        public void ClearPlaylist()
+        {
+            m_Form.ClearPlaylist();
+        }
+        #endregion
 
         private void OpenPlaylist()
         {

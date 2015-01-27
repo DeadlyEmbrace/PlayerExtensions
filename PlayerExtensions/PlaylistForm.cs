@@ -122,12 +122,20 @@ namespace Mpdn.PlayerExtensions.GitHub
             }
         }
 
+        #region RemoteControl Methods
         public void AddFiles(IEnumerable<string> files)
         {
             var startPlaying = listBox.Items.Count == 0;
             AddFiles(files, startPlaying);
             PlaylistCount = listBox.Items.Count;
         }
+
+        public void ClearPlaylist()
+        {
+            PlayerControl.StopMedia();
+            listBox.Items.Clear();
+        }
+        #endregion
 
         public void AddFiles(IEnumerable<string> files, bool startPlaying)
         {
